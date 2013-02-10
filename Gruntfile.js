@@ -2,7 +2,7 @@
  * grunt-contrib-requirejs
  * http://gruntjs.com/
  *
- * Copyright (c) 2012 Tyler Kellen, contributors
+ * Copyright (c) 2013 Tim Branyen, Tyler Kellen, contributors
  * Licensed under the MIT license.
  */
 
