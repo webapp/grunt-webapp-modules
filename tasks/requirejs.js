@@ -27,8 +27,7 @@ module.exports = function(grunt) {
     };
   });
 
-  grunt.registerMultiTask("requirejs", "Build a RequireJS project.",
-  function() {
+  grunt.registerMultiTask("requirejs", "Build with r.js.", function() {
     var done = this.async();
 
     var options = this.options({
@@ -51,38 +50,24 @@ module.exports = function(grunt) {
       skipModuleInsertion: false,
 
       // Do not wrap everything in an IIFE.
-      wrap: false
+      wrap: false,
+
+      // Default main module.
+      deps: ["main"],
+
+      // Jam configuration path.
+      jamConfig: "vendor/jam/require.config.js"
     });
 
-    // Need to access the CommonJS builder.
-    require("requirejs").tools.useLib(function(rjs) {
-      // This method allows hooking into the RequireJS toolchain.
-      rjs(["commonJs"], function(commonJs) {
-        // Optionally allow CommonJS modules to be automatically wrapped to
-        // AMD.
-        options.onBuildWrite = function(name, path, contents) {
-          // Only process files from within the app directory.
-          if (path.indexOf("../") === -1) {
-            // Convert to AMD if using CommonJS, by default the conversion
-            // will ignore modules that already contain a define.
-            return commonJs.convert(name, contents);
-          }
+    // Merge in the Jam configuration.
+    if (grunt.file.exists(options.jamConfig)) {
+      _.extend(options, require(process.cwd() + "/" + options.jamConfig));
+    }
 
-          // Always return the contents.
-          return contents;
-        };
+    grunt.verbose.writeflags(options, "Options");
 
-        // Merge the JamConfig option if it exists.
-        if (fs.existsSync(process.cwd() + "/" + options.jamConfig)) {
-          _.extend(options, require(process.cwd() + "/" + options.jamConfig));
-        }
-
-        grunt.verbose.writeflags(options, "Options");
-
-        requirejs.optimize(options, function(response) {
-          done();
-        });
-      });
+    requirejs.optimize(options, function(response) {
+      done();
     });
   });
 };
