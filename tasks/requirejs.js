@@ -152,12 +152,6 @@ module.exports = function(grunt) {
     var done = this.async();
 
     var options = this.options({
-      // Include the main configuration file.
-      mainConfigFile: "app/config.js",
-
-      // Output file.
-      out: "dist/debug/source.js",
-
       // Root application module.
       name: "config",
 
