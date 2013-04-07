@@ -195,9 +195,6 @@ module.exports = function(grunt) {
           // Jam configuration path.
           jamConfig: "vendor/jam/require.config.js",
 
-          // This will ensure the application runs after being built.
-          include: ["main", "app"],
-
           // If the contents do not contain a define call, then wrap with 
           onBuildRead: function (moduleName, path, contents) {
             // Do not execute the conversion on files that do not exist in the
