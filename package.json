@@ -1,7 +1,7 @@
 {
   "name": "grunt-bbb-requirejs",
   "description": "Optimize RequireJS projects using r.js.",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "homepage": "https://github.com/backbone-boilerplate/grunt-bbb-requirejs",
   "repository": {
     "type": "git",
