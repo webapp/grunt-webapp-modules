@@ -15,6 +15,11 @@ module.exports = function(grunt) {
   var _ = grunt.util._;
   var log = grunt.log;
 
+  // Convert the contents passed to CommonJS and then return.
+  function toCommonJS(moduleName, contents, commonJs) {
+    return commonJs.convert(moduleName, String(contents));
+  }
+
   // TODO: extend this to send build log to grunt.log.ok / grunt.log.error by
   // overriding the r.js logger (or submit issue to r.js to expand logging
   // support)
@@ -43,7 +48,7 @@ module.exports = function(grunt) {
         var jsRegExp = /\.js$/;
 
         requirejs.tools.useLib(function(require) {
-          require(["parse"], function(parse) {
+          require(["parse", "commonJs"], function(parse, commonJs) {
             var deps = {};
             var files = [];
 
@@ -67,7 +72,10 @@ module.exports = function(grunt) {
             files.forEach(function(name) {
               var contents = fs.readFileSync(name, "utf8");
               var shortname = name.slice(name.indexOf(appDir));
-              var dep;
+              var dep, all;
+
+              // Convert to CommonJS first.
+              contents = commonJs.convert(name, contents);
 
               try {
                 dep = parse.findDependencies(name, contents)
@@ -76,7 +84,12 @@ module.exports = function(grunt) {
               }
 
               if (dep && dep.length) {
-                deps[shortname] = parse.findDependencies(name, contents);
+                all = deps[shortname] = parse.findDependencies(name, contents);
+
+                // Remove `require`, `module`, `exports`.
+                all.splice(all.indexOf("require"), 1);
+                all.splice(all.indexOf("module"), 1);
+                all.splice(all.indexOf("exports"), 1);
               }
             });
             
@@ -149,40 +162,67 @@ module.exports = function(grunt) {
   });
 
   grunt.registerMultiTask("requirejs", "Build with r.js.", function() {
-    var done = this.async();
+    // Make the current task reusable within the async callbacks below.
+    var task = this;
 
-    var options = this.options({
-      // Root application module.
-      name: "config",
+    // Put this task into `async-mode`, cause we're gonna need it.
+    var done = task.async();
 
-      // Leave optimization to our UglifyJS task.
-      optimize: "none",
+    // Cache this function so that we can reuse it within RequireJS's
+    // utilities.
+    var nodeRequire = require;
 
-      // Show warnings
-      logLevel: 2,
+    // Access RequireJS's internal utilities.
+    requirejs.tools.useLib(function(require) {
+      // Get access to the CommonJS convert utility.
+      require(["commonJs"], function(commonJs) {
+        var options = task.options({
+          // Root application module.
+          name: "config",
 
-      // Ensure modules are inserted
-      skipModuleInsertion: false,
+          // Leave optimization to our UglifyJS task.
+          optimize: "none",
 
-      // Do not wrap everything in an IIFE.
-      wrap: false,
+          // Show warnings
+          logLevel: 2,
 
-      // Default main module.
-      deps: ["main"],
+          // Ensure modules are inserted
+          skipModuleInsertion: false,
 
-      // Jam configuration path.
-      jamConfig: "vendor/jam/require.config.js"
-    });
+          // Do not wrap everything in an IIFE.
+          wrap: false,
 
-    // Merge in the Jam configuration.
-    if (grunt.file.exists(options.jamConfig)) {
-      _.extend(options, require(process.cwd() + "/" + options.jamConfig));
-    }
+          // Jam configuration path.
+          jamConfig: "vendor/jam/require.config.js",
 
-    grunt.verbose.writeflags(options, "Options");
+          // This will ensure the application runs after being built.
+          include: ["main"],
 
-    requirejs.optimize(options, function(response) {
-      done();
+          // If the contents do not contain a define call, then wrap with 
+          onBuildRead: function (moduleName, path, contents) {
+            // Do not execute the conversion on files that do not exist in the
+            // main application path.
+            if (path.indexOf("../") < 0) {
+              return commonJs.convert(moduleName, contents);
+            }
+            
+            return contents;
+          }
+        });
+
+        // Merge in the Jam configuration.
+        if (grunt.file.exists(options.jamConfig)) {
+          _.extend(options, nodeRequire(process.cwd() + "/" + options.jamConfig));
+        }
+
+        // Only log the options during verbose mode.
+        grunt.verbose.writeflags(options, "Options");
+
+        // Full optimiziation.
+        requirejs.optimize(options, function(response) {
+          done();
+        });
+      });
     });
   });
 };
