@@ -80,7 +80,7 @@ module.exports = function(grunt) {
               try {
                 dep = parse.findDependencies(name, contents)
               } catch (ex) {
-                
+                console.log(ex);
               }
 
               if (dep && dep.length) {
@@ -199,8 +199,20 @@ module.exports = function(grunt) {
           onBuildRead: function (moduleName, path, contents) {
             // Do not execute the conversion on files that do not exist in the
             // main application path.
-            if (path.indexOf("../") < 0) {
-              return commonJs.convert(moduleName, contents);
+            if (path.indexOf(process.cwd() + "/app") === 0 && path.indexOf("../") == -1) {
+              var wrapped = commonJs.convert(moduleName, contents);
+              var noDefine = wrapped.indexOf("define(") === -1;
+              var noConfig = wrapped.indexOf("require.config") === -1;
+
+              if (noDefine && noConfig) {
+                wrapped = [
+                  "define(function(require, exports, module) {",
+                    wrapped,
+                  "});"
+                ].join("\n");
+              }
+
+              return wrapped;
             }
             
             return contents;
