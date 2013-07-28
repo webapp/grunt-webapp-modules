@@ -5,9 +5,11 @@
  * Copyright (c) 2013 Tim Branyen, Tyler Kellen, contributors
  * Licensed under the MIT license.
  */
+"use strict";
 
 module.exports = function(grunt) {
-  "use strict";
+  var ENV = process.env;
+  var CWD = process.cwd();
 
   var fs = require("fs");
   var path = require("path");
@@ -177,11 +179,43 @@ module.exports = function(grunt) {
       // Get access to the CommonJS convert utility.
       require(["commonJs"], function(commonJs) {
         var options = task.options({
-          // Root application module.
-          name: "config",
+          // Include the main ration file.
+          mainConfigFile: "app/config.js",
 
-          // Leave optimization to our UglifyJS task.
-          optimize: "none",
+          // Setting the base url to the distribution directory allows the
+          // Uglify minification process to correctly map paths for Source
+          // Maps.
+          baseUrl: "dist/app",
+
+          // Default location for where scripts are modules.
+          moduleDirs: ["dist/app", "dist/test"],
+
+          // Include Almond to slim down the built filesize.
+          name: "almond",
+
+          // Set the Bootstrap as the main entry point.
+          include: ["bootstrap"],
+          insertRequire: ["bootstrap"],
+
+          // Since we bootstrap with nested `require` calls this option allows
+          // R.js to find them.
+          findNestedDependencies: true,
+
+          // Wrap everything in an IIFE.
+          wrap: true,
+
+          // Output file.
+          out: "dist/source.min.js",
+
+          // Enable Source Map generation.
+          generateSourceMaps: true,
+
+          // Do not preserve any license comments when working with source maps.
+          // These options are incompatible.
+          preserveLicenseComments: false,
+
+          // Minify using UglifyJS.
+          optimize: "uglify2",
 
           // Show warnings
           logLevel: 2,
@@ -189,48 +223,40 @@ module.exports = function(grunt) {
           // Ensure modules are inserted
           skipModuleInsertion: false,
 
-          // Do not wrap everything in an IIFE.
-          wrap: false,
-
-          // Jam configuration path.
-          jamConfig: "vendor/jam/require.config.js",
-
           // If the contents do not contain a define call, then wrap with 
-          onBuildRead: function (moduleName, path, contents) {
+          onBuildRead: function (moduleName, filePath, contents) {
+            var moduleDir = _.find(options.moduleDirs, function(dir) {
+              return filePath.indexOf(path.resolve(CWD, dir)) === 0;
+            });
+
             // Do not execute the conversion on files that do not exist in the
             // main application path.
-            if (path.indexOf(process.cwd() + "/app") === 0 && path.indexOf("../") == -1) {
-              var wrapped = commonJs.convert(moduleName, contents);
-              var noDefine = wrapped.indexOf("define(") === -1;
-              var noConfig = wrapped.indexOf("require.config") === -1;
-
-              if (noDefine && noConfig) {
-                wrapped = [
-                  "define(function(require, exports, module) {",
-                    wrapped,
-                  "});"
-                ].join("\n");
-              }
-
-              return wrapped;
+            if (!moduleDir) {
+              return contents;
             }
-            
-            return contents;
+
+            // Convert CommonJS to AMD.
+            var wrapped = commonJs.convert(moduleName, contents);
+            var noDefine = wrapped.indexOf("define(") === -1;
+            var noConfig = wrapped.indexOf("require.config") === -1;
+
+            if (noDefine && noConfig) {
+              wrapped = [
+                "define(function(require, exports, module) {",
+                  wrapped,
+                "});"
+              ].join("\n");
+            }
+
+            return wrapped;
           }
         });
-
-        // Merge in the Jam configuration.
-        if (grunt.file.exists(options.jamConfig)) {
-          _.extend(options, nodeRequire(process.cwd() + "/" + options.jamConfig));
-        }
 
         // Only log the options during verbose mode.
         grunt.verbose.writeflags(options, "Options");
 
         // Full optimiziation.
-        requirejs.optimize(options, function(response) {
-          done();
-        });
+        requirejs.optimize(options, done);
       });
     });
   });
