@@ -1,14 +1,14 @@
 {
-  "name": "grunt-bbb-requirejs",
-  "description": "Optimize RequireJS projects using r.js.",
-  "version": "0.1.0-alpha.5",
-  "homepage": "https://github.com/backbone-boilerplate/grunt-bbb-requirejs",
+  "name": "grunt-webapp-modules",
+  "description": "Optimize ES6, CJS, and AMD modules with Grunt.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/webapp/grunt-webapp-modules",
   "repository": {
     "type": "git",
-    "url": "git://github.com/backbone-boilerplate/grunt-bbb-requirejs.git"
+    "url": "git://github.com/webapp/grunt-webapp-modules.git"
   },
   "bugs": {
-    "url": "https://github.com/backbone-boilerplate/grunt-bbb-requirejs/issues"
+    "url": "https://github.com/webapp/grunt-webapp-modules/issues"
   },
   "main": "Gruntfile.js",
   "engines": {
@@ -18,14 +18,16 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "requirejs": "~2.1"
+    "requirejs": "~2.1.8",
+    "es6-module-transpiler": "~0.2.0"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "0.1.1rc6",
     "grunt-contrib-nodeunit": "0.1.2rc6",
     "grunt-contrib-clean": "0.4.0rc6",
     "grunt-contrib-internal": "*",
-    "grunt": "0.4.0rc7"
+    "grunt": "0.4.0rc7",
+    "grunt-contrib-connect": "~0.3.0"
   },
   "keywords": [
     "gruntplugin"
