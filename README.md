@@ -3,13 +3,6 @@ WebApp Modules Grunt Plugin.
 
 > transpile es6, cjs, and amd modules with grunt
 
-#### Features ####
-
-The intention of this project is to make it painless to build JavaScript
-projects using a variety of popular module formats.
-
-* Author your modules in ES6, CJS, or AMD.
-
 #### Installation ####
 
 The preferred method of installation is through the Node Package Manager (NPM).
