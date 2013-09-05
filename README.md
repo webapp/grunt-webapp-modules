@@ -1,28 +1,16 @@
 WebApp Modules Grunt Plugin.
-============================
+----------------------------
 
-v0.1.0
+> automate transpiling source modules
 
-**Originally forked from [grunt-contrib-requirejs](), and now differs in many
-ways.**
-
-Where the former plugin strives to simply pass along options to the RequireJS
-Optimizer, this project attempts to converge development and provide sane
-defaults.  The core has been extracted into [webapp-modules]() which is a
-reusable module suitable for integration into a non-Grunt build environment.
-
-## Features ##
+#### Features ####
 
 The intention of this project is to make it painless to build JavaScript
-projects using a variety of popular module formats.  Many configuration options
-have already been decided for you, but may be overwritten at your convenience.
+projects using a variety of popular module formats.
 
-* Author your modules in ES6, CJS, or AMD.  (Always compiles down to
-  AMD).
-* Source Maps and recursive dependency management.  (Courtesy of the RequireJS
-  optimizer.)
+* Author your modules in ES6, CJS, or AMD.
 
-## Installation ##
+#### Installation ####
 
 The preferred method of installation is through the Node Package Manager (NPM).
 
@@ -38,7 +26,7 @@ within the `module.exports` function:
 grunt.loadNpmTasks("grunt-webapp-modules");
 ```
 
-## Configuration ##
+#### Configuration ####
 
 Once you have this plugin installed, configuration is straightforward.  To
 start, add a configuration section within the `initConfig` call to your
@@ -52,21 +40,17 @@ grunt.initConfig({
 });
 ```
 
-**This is a mutlitask which is useful when you would like to create varying
+**This is a multitask which is useful when you would like to create varying
 builds.  Refer to the Grunt documentation for more information on how to use
 multitasks.**
 
-### Source module format ###
-
-To ensure output correctness, only one format may be specified to author in.
-
-#### Available options ####
+##### Available options #####
 
 * "amd" (Asynchronous Module Definition) **Default**
 * "es6" (Upcoming ECMAScript standard)
 * "cjs" (CommonJS standard)
 
-#### Example ####
+##### Example #####
 
 ``` javascript
 modules: {
@@ -76,28 +60,6 @@ modules: {
 }
 ```
 
-### RequireJS Optimizer ###
-
-You can override any options passed to the optimizer by specifying them in the
-`optimizer` configuration object.  This object is broken out from the main
-options to ensure no naming conflicts occur.
-
-#### Available options ####
-
-Refer to the [RequireJS documentation]()
-
-#### Example ####
-
-``` javascript
-modules: {
-  options: {
-    optimizer: {
-      out: "dist/my-library.js"
-    }
-  }
-}
-```
-
-## License ##
+#### License ####
 
 MIT.
