@@ -40,9 +40,9 @@ grunt.initConfig({
 });
 ```
 
-**This is a multitask which is useful when you would like to create varying
+_This is a multitask which is useful when you would like to create varying
 builds.  Refer to the Grunt documentation for more information on how to use
-multitasks.**
+multitasks._
 
 ##### Available options #####
 
