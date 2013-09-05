@@ -32,6 +32,7 @@ module.exports = function(grunt) {
 
     // Make the current task reusable within the async callbacks below.
     var task = this;
+    var transpiled = "";
 
     // Cache this function so that we can reuse it within RequireJS's
     // utilities.
@@ -50,17 +51,22 @@ module.exports = function(grunt) {
           return false;
         }
 
-
+        // Read in the source code.
         var source = grunt.file.read(filepath);
 
+        // Determine the source format.
+        var sourceFormat = options.sourceFormat || modules.detect(source);
+
+        // Use the filepath as the moduleName.
         filepath = filepath.slice(options.root.length);
 
-        var converted = modules.transpile("es6", filepath, source);
+        // Actually transpile.
+        transpiled = modules.transpile(options.so, filepath, source);
 
         // Convert for all format types.
         options.formats.forEach(function(format) {
           var outputFile = path.join(file.dest, format, filepath);
-          grunt.file.write(outputFile, converted[format]);
+          grunt.file.write(outputFile, transpiled[format]);
         });
       });
     });

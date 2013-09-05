@@ -1,7 +1,7 @@
 WebApp Modules Grunt Plugin.
 ----------------------------
 
-> automate transpiling source modules
+> transpile es6, cjs, and amd modules with grunt
 
 #### Features ####
 
@@ -47,9 +47,10 @@ multitasks._
 ##### Available options #####
 
 * `sourceFormat`
-  - "amd" (Asynchronous Module Definition) **Default**
+  - "amd" (Asynchronous Module Definition)
   - "es6" (Upcoming ECMAScript standard)
-  - "cjs" (CommonJS standard)
+  - "cjs" (CommonJS)
+  - Defaults to autodetection.
 
 * `src`
   - Glob pattern to locate your source code.
