@@ -46,9 +46,16 @@ multitasks._
 
 ##### Available options #####
 
-* "amd" (Asynchronous Module Definition) **Default**
-* "es6" (Upcoming ECMAScript standard)
-* "cjs" (CommonJS standard)
+* `sourceFormat`
+  - "amd" (Asynchronous Module Definition) **Default**
+  - "es6" (Upcoming ECMAScript standard)
+  - "cjs" (CommonJS standard)
+
+* `src`
+  - Glob pattern to locate your source code.
+
+* `dest`
+  - Folder path to output `amd/` and `cjs/` builds.
 
 ##### Example #####
 
@@ -56,6 +63,11 @@ multitasks._
 modules: {
   options: {
     sourceFormat: "es6"
+  },
+
+  transpile: {
+    src: "src/**/*.js",
+    dest: "dist/"
   }
 }
 ```
